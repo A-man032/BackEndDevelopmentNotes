@@ -72,7 +72,7 @@ Java的历史可以追溯到1991年，最初命名为“Oak”，后来更名为
 
 2019年9月，发布Java 13。
 
-![截屏2020-11-05 00.00.47](https://github.com/A-man032/BackEndDevelopmentNotes/blob/main/Java/png/%E6%88%AA%E5%B1%8F2020-11-05%2000.00.47.png)
+![Java语言的发展状况](https://github.com/A-man032/BackEndDevelopmentNotes/blob/main/Java/png/%E6%88%AA%E5%B1%8F2020-11-05%2000.00.47.png)
 
 ### 1.4 对Java的常见误解
 
