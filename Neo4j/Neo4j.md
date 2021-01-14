@@ -156,7 +156,9 @@ Neo4j图数据库将其所有数据存储在节点和关系中。我们不需要
   - 虽然创建索引的过程非常耗时，但索引一旦创建就可以多次使用。全文检索主要处理的是查询，所以耗时间创建索引是值得的。
 - 应用场景：对于数据量大、数据结构不固定的数据可采用全文检索方式搜索，比如百度、Google等搜索引擎、论坛站内搜索、电商网站站内搜索等。
 
-![Lucene索引和搜索流程](E:\杨漫\BackEndDevelopmentNotes\Neo4j\png\Lucene索引和搜索流程.png)
+![Lucene索引和搜索流程](https://github.com/A-man032/BackEndDevelopmentNotes/tree/master/Neo4j/png/Lucene索引和搜索流程.png)
+
+
 
 ## 4. Neo4j CQL
 
