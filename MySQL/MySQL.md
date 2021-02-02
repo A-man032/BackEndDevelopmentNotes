@@ -104,16 +104,14 @@
      
      mysql -h127.0.0.1 -uroot -p
      Enter password:
-     ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1' (10061)
+   ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1' (10061)
      # 连接失败意味着之前在启动服务器时指定的启动选项--skip_networking生效了
-     
      ```
 
    - 启动服务器程序时，更改表的默认存储引擎（默认使用InnoDB作为表的存储引擎）。
 
      ```mysql
      mysqld --default-storage-engine=MyISAM
-     
      ```
 
 2. **配置文件中使用选项：**
@@ -121,3 +119,114 @@
    把需要设置的启动选项写在配置文件中，每次启动服务器时都从这个文件中加载相应的启动选项。配置文件使用`.ini`或`.cnf`扩展名。
 
 **注意：** 如果同一个启动选项既出现在命令行中，又出现在配置文件中，那么以命令行中的启动选项为准。
+
+### 2.2 系统变量
+
+系统变量：MySQL服务端程序在运行过程中用到的影响程序行为的变量。
+
+- `max_connections`：允许同时连入的客户端数量
+- `default_storage_engine`：表的默认存储引擎
+- `query_cache_size`：查询缓存的大小
+
+**查看系统变量：**
+
+​	系统变量非常多，用LIKE表达式指定过滤条件，可以用%模糊查询。
+
+```mysql
+mysql> SHOW VARIABLES LIKE 'default_storage_engine';
++------------------------+--------+
+| Variable_name          | Value  |
++------------------------+--------+
+| default_storage_engine | InnoDB |
++------------------------+--------+
+1 row in set, 1 warning (0.08 sec)
+
+mysql> SHOW VARIABLES LIKE 'max_connections';
++-----------------+-------+
+| Variable_name   | Value |
++-----------------+-------+
+| max_connections | 200   |
++-----------------+-------+
+1 row in set, 1 warning (0.00 sec)
+```
+
+> MySQL服务器实际上允许`max_connections+1`个客户端连接，额外的一个是给超级用户准备的。
+
+按**作用范围**，可将系统变量分为GLOBAL（全局范围）和SESSION（会话范围）。
+
+- **GLOBAL（全局范围）**：影响服务器的整体操作，全面变量。
+- **SESSION（会话范围）**：影响某个客户端连接的操作，会话变量。
+
+服务器在启动时，会将每个全局变量初始化为其默认值（可以通过命令行或配置文件中指定的选项更改这些默认值）。服务器还为每个连接的客户端维护一组会话变量，客户端的会话变量在连接时使用相应全局变量的当前值进行初始化。
+
+- 以`default_storage_engine`为例，服务器启动时会初始化一个名为`default_storage_engine`、作用范围时GLOBAL的系统变量。每当有一个客户端连接到该服务器时，服务器都会单独为该客户端分配一个名为`default_storage_engine`、作用范围是SESSION的系统变量，作用范围是SESSION的系统变量值按照当前当前作用范围是GLOBAL的同名系统变量值进行初始化。
+
+在服务端程序运行期间通过客户端程序设置系统变量的语法：
+
+```mysql
+SET [GLOBAL|SESSION] 系统变量名 = 值;
+SET [@@(GLOBAL|SESSION).]系统变量名 = 值;
+#之后新连接到服务器的客户端都用MyISAM作为默认存储引擎
+SET GLOBAL default_storage_engine=MyISAM;
+SET @@GLOBAL.default_storage_engine=MyISAM;
+#只对本客户端生效
+SET SESSION default_storage_engine=MyISAM;
+SET @@SESSION.default_storage_engine=MyISAM;
+SET default_storage_engine=MyISAM;
+```
+
+**注意**：在设置系统变量的语句中省略作用范围，默认作用范围是SESSION。
+
+**查看和设置不同作用范围下的系统变量：**
+
+- 把SESSION作用范围的系统变量值设置为MyISAM，GLOBAL作用范围的值并没有改变。
+- 如果某个客户端改变了某个系统变量在GLOBAL作用范围的值，并不会影响该系统变量在当前已经连接的客户端作用范围为SESSION的值，只会影响后续炼乳的客户端作用范围为SESSION的值。
+
+```mysql
+mysql> SET GLOBAL default_storage_engine=MyISAM;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SHOW GLOBAL VARIABLES LIKE 'default_storage_engine';
++------------------------+--------+
+| Variable_name          | Value  |
++------------------------+--------+
+| default_storage_engine | MyISAM |
++------------------------+--------+
+1 row in set, 1 warning (0.01 sec)
+
+mysql> SHOW SESSION VARIABLES LIKE 'default_storage_engine';
++------------------------+--------+
+| Variable_name          | Value  |
++------------------------+--------+
+| default_storage_engine | InnoDB |
++------------------------+--------+
+1 row in set, 1 warning (0.00 sec)
+```
+
+> **Tips：**
+>
+> - 并不是所有的系统变量都具有GLOBAL和SESSION的作用范围。
+>   - `max_connections`表示服务器程序支持同时最多有多少个客户端程序进行连接，**只具有GLOBAL作用范围**。
+>   - `insert_id`表示在对某个包含AUTO_INCREMENT列的表进行插入时，该列初始的值，**只具有SESSION作用范围**。
+> - 有些系统变量是只读的，并不能设置值。如`version`。
+
+**启动选项和系统变量的区别：**
+
+- 启动选项是程序启动时由用户传递的一些参数，系统变量是影响服务器程序运行行为的变量。
+- 大部分的系统变量都可以作为启动选项传入。
+- 有些系统变量是在程序运行过程中自动生成的，不可以当做启动选项来设置，如`character_set_client`表示客户端请求数据的字符集。
+- 有些启动选项也不是系统变量，如`default-file`表示配置路径。
+
+### 2.3 状态变量
+
+状态变量：关于程序运行状态的变量。
+
+- `Threads_connected`：表示当前有多少客户端与服务器建立了连接。
+- 因为状态变量是用来显示服务器程序运行状态的，所以状态变量的值只能由服务器程序自己设置，不能人为设置。
+- 有GLOBAL和SESSION两个作用范围。
+
+### 2.4 总结
+
+1. 启动选项可以**调整服务器启动后的一些行为**。
+2. 系统变量是服务器程序中维护的一些变量，这些变量**影响着服务器的行为**。
+3. 状态变量是用来**显示服务器程序运行状态的**。
