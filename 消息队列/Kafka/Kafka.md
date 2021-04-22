@@ -185,3 +185,31 @@ for record in consumer:
 consumer.close()
 ```
 
+## kafka数据丢失原因
+
+Kafka 消息发送分同步 (sync)、异步 (async) 两种方式，默认使用同步方式，可通过 producer.type 属性进行配置；
+
+通过 request.required.acks 属性进行配置：值可设为 0, 1, -1(all)  -1 和 all 等同
+
+**0 代表：不等待 broker 的 ack**，这一操作提供了一个最低的延迟，broker 一接收到还没有写入磁盘就已经返回，当 broker 故障时有可能丢失数据；
+
+**1 代表：producer 等待 broker 的 ack，partition 的 leader 落盘成功后返回 ack**，如果在 follower 同步成功之前 leader 故障，那么将会丢失数据；
+
+**-1 代表：producer 等待 broker 的 ack，partition 的 leader 和 follower 全部落盘成功后才返回 ack**，数据一般不会丢失，延迟时间长但是可靠性高；但是这样也不能保证数据不丢失，比如当 ISR 中只有 leader 时( ISR 中的成员由于某些情况会增加也会减少，最少就只剩一个 leader)，这样就变成了 acks = 1 的情况；
+
+另外一个就是使用高级消费者存在数据丢失的隐患: 消费者读取完成，高级消费者 API 的 offset 已经提交，但是还没有处理完成Spark Streaming 挂掉，此时 offset 已经更新，无法再消费之前丢失的数据. 解决办法使用低级消费者
+
+### 解决方法
+
+设置同步模式, producer.type = sync, Request.required.acks = -1, replication.factor >= 2 且 min.insync.replicas >= 2
+
+## kafka数据重复原因
+
+- 原因1：acks = -1 的情况下，数据发送到 leader 后 ，部分 ISR 的副本同步，leader 此时挂掉。比如 follower1 和 follower2 都有可能变成新的 leader, producer 端会得到返回异常，producer 端会重新发送数据，数据可能会重复。
+- 原因2：另外, 在高阶消费者中，offset 采用自动提交的方式, 自动提交时，假设 1s 提交一次 offset 的更新，设当前 offset = 10，当消费者消费了 0.5s 的数据，offset 移动了 15，由于提交间隔为 1s，因此这一 offset 的更新并不会被提交，这时候我们写的消费者挂掉，重启后，消费者会去 ZooKeeper 上获取读取位置，获取到的 offset 仍为10，它就会重复消费. 解决办法使用低级消费者。
+
+### 解决方法
+
+- 对于原因1：消费者做一层缓存过滤，以数据量为缓存或以时间为缓存都可以解决这个问题。比如加一个缓存区，只要判断数据重复了则不再重复消费即可，然后当缓存的数据超过了1M，则清除一次缓存区；或者直接缓存到redis中，使用redis api来去重，定时清理一下redis中的数据也可以。
+- 对于原因2：大多数情况下如果使用消费者手动提交的模式，一般不会出现这种问题（手动提交的情况下如果出现异常，没有执行提交代码，那么代码中做好数据消费的回滚操作即可，更加可控）
+
