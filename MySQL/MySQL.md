@@ -104,7 +104,7 @@
      
      mysql -h127.0.0.1 -uroot -p
      Enter password:
-   ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1' (10061)
+   # ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1' (10061)
      # 连接失败意味着之前在启动服务器时指定的启动选项--skip_networking生效了
      ```
 
