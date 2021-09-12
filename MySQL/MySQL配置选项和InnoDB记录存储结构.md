@@ -1,7 +1,5 @@
 [TOC]
 
-# MySQL
-
 ## 1. MySQL的客户端/服务端架构
 
 **（类Unix系统）bin目录下启动MySQL服务器程序的可执行文件：**
@@ -308,8 +306,6 @@ CREATE TABLE 表名 (列信息) ROW_FORMAT=行格式名称;
 ALTER TABLE 表名 ROW_FORMAT=行格式名称;
 ```
 
-
-
 ### 4.2 InnoDB行格式
 
 InnoDB有4种不同的行格式：COMPACT、REDUNDANT、DYNAMIC、COMPRESSED。
@@ -400,6 +396,4 @@ COMPACT和REDUNDANT行格式中，对于占用存储空间非常多的列，**�
 **COMPRESSED行格式和DYNAMIC行格式的区别：**
 
 - COMPRESSED行格式会采用压缩算法对页面进行压缩。
-
-## 5. InnoDB数据页结构
 
