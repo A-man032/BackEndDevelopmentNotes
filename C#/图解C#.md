@@ -63,7 +63,7 @@ BCL（Base Class Library）是.NET框架使用的一个大的类库，也可在�
 
 **程序的CIL直到被调用运行时才会被编译成本机代码。**
 
-运行时，CLR执行：
+运行时， CLR执行：
 
 - 检查程序集的安全特性
 - 在内存中分配空间
@@ -91,6 +91,18 @@ BCL（Base Class Library）是.NET框架使用的一个大的类库，也可在�
 CLI（Common Language Infrastructure，公共语言基础架构）把所有.NET框架的组件连接成一个内聚一致的系统，展示了系统的概念和架构，并详细说明所有软件必须坚持的规则和约定。
 
 ![image-20220507141000165](./png/CLI.png)
+
+## C# and .NET Core
+
+Background:
+
+- Both Unix and Apple managed to cut into Microsoft's market share in computers.
+- A much more significant development has been the massive shift toward mobile devices, an area where Microsoft's share has been negligible.
+- The increase in the share of web-based applications rather than desktop-based applications.
+
+New framework **.NET Core** could better address web development, as well as development for computers running Linux or macOS, which is a cloud-enabled, cross-platform, open-source derivative of the .NET framework.
+
+**Xamarin** addresses development on mobile platforms, such as Android and IOS.
 
 ## C#编程
 
@@ -133,7 +145,9 @@ Write是Console类的成员，把一个文本字符串发送到程序的控制�
 System.Console.Write("This is text1.");
 System.Console.Write("This is text2.");
 System.Console.Write("This is text3.");
+```
 
+```
 // Output
 This is text1.This is text2.This is text3.
 ```
@@ -148,7 +162,9 @@ WriteLine也是Console类的成员，功能与Write相同，但会**在每个输
 System.Console.WriteLine("This is text1.");
 System.Console.WriteLine("This is text2.");
 System.Console.WriteLine("This is text3.");
+```
 
+```
 // Output
 This is text1.
 This is text2.
@@ -166,6 +182,9 @@ Write和WriteLine语句的常规格式中可以有一个以上的参数。
 
 ```c#
 Console.WriteLine("Two sample integers are {0} and {1}.", 3, 6);
+```
+
+```
 //Output
 Two sample integers are 3 and 6.
 ```
@@ -179,9 +198,139 @@ C#中，可以使用任意数量的替代标记和任意数量的值。
 
 ```c#
 Console.WriteLine("Three integers are {1}, {0} and {1}.", 3, 6);
+```
+
+```
 //Output
 Three integers are 6, 3 and 6.
 ```
 
 **标记不能试图引用超出替换值列表长度以外位置的值。** 如果引用了，不会产生编译错误，但会产生运行时错误（异常）。
+
+#### 格式化数字字符串
+
+某些场景下，我们希望以更合适的格式而不是简单的数字来呈现文本字符串的输出。C#通过格式化字符串实现，格式项以格式说明符的形式包括了额外的信息。
+
+大括号内的格式说明符的语法由3个字段组成：索引号、对齐说明符和格式字段。
+
+![image-20220508153112580](./png/格式说明符.png)
+
+- **索引号**，指定了格式化字符串应该格式化列表中的哪一项。**索引号是必须的，且列表项的数字必须从0开始**。
+
+- **对齐说明符**，表示字段中字符的最小宽度。
+
+  - 可选的，用逗号与索引号分离
+
+  - 由正整数或负整数组成
+
+    - 整数表示了字段使用字符的最少数量
+    - 符号表示了对齐的方向。正数表示右对齐，负数表示左对齐。
+
+    ```c#
+    int a = 6;
+    Console.WriteLine("|{0,10}|",a);
+    Console.WriteLine("|{0,-10}|", a);
+    ```
+
+    ```
+    //Output
+    |         6|
+    |6         |
+    ```
+
+    - 如果要表示的字符数比对齐说明符中指定的字符数**少**，那么其余字符会使用**空格**填充。
+    - 如果要表示的字符数比指定的字符数**多**，那么会**忽略对齐说明符**，并且使用所需的字符进行表示。
+
+- **格式字段**，指定了数字以哪种形式表示，如货币、十进制数、十六进制数等。
+
+  - 冒号后紧跟格式说明符，中间不能有空格。
+  - *格式说明符*是一个字母字符，有9种。字母可大写可小写。
+  - *精度说明符*是可选的，由1-2位数字组成，实际意义取决于格式说明符。
+
+  ```c#
+  Console.WriteLine("{0:F4}",3.1415926);
+  ```
+
+  ```
+  //Output
+  3.1416
+  ```
+
+**标准数字格式说明符**
+
+![image-20220508171711948](./png/标准数字格式说明符1.png)
+
+![image-20220508171823164](./png/标准数字格式说明符2.png)
+
+## Types, Storage, and Variables
+
+### A C# Program Is a Set of Type Declarations
+
+>A C program is a set of functions and data types;
+>
+>A C++ program is a set of functions and classes;
+>
+>A C# program is a set of type declarations.
+
+- C#程序或DLL的源代码是一组**一种或多种类型声明**
+- 对于可执行程序，类型声明中必须有一个包含Main方法的类
+- 命名空间时一种把相关的类型声明**分组并命名**的方法。通常把程序声明放在自己创建的命名空间内部。
+
+### A Type Is a Template
+
+类型可认为是一个用来创建数据结构的模板。包括：
+
+- 名称
+- 用于保存数据成员的数据结构
+- 一些行为及约束条件
+
+### Instantiating a Type
+
+ Instantiating a type: creating an actual object from the type's template.
+
+### Predefined Types
+
+![image-20220509150419875](./png/PredefinedType.png)
+
+**Note:**
+
+- A high-precision decimal type is called **decimal**. Unlike float and double, type decimal can represent decimal fractional numbers exactly. It's **often used for monetary calculations**.
+- Unlike C and C++, **in C# numeric values do not have a Boolean interpretation**.
+- Type *object*, which is the base type on which all other types are based.
+- Type *dynamic*, which is used when using assemblies written in dynamic languages.
+
+The Predefined Simple Types:
+
+![image-20220509151413956](./png/SimpleTypes.png)
+
+The Predefined Nonsimple Types:
+
+![image-20220509151511119](./png/NonsimpleTypes.png)
+
+### User-Defined Type
+
+Besides the 16 predefined types provided by C#, we can create our user-defined types.
+
+- class types
+- struct types
+- array types
+- enum types
+- <u>delegate types</u>
+- interface types
+
+### The Stack and The Heap
+
+A running program uses two regions of memory to store data: **the stack and the heap**.
+
+#### Stack
+
+The stack is **an array** of memory whose elements follow last-in and first-out rules.
+
+The stack stores several types of data:
+
+- The values of certain types of variables
+- The program's current execution environment
+- Parameters passed to methods
+
+
 
