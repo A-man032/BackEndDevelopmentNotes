@@ -315,7 +315,7 @@ Besides the 16 predefined types provided by C#, we can create our user-defined t
 - struct types
 - array types
 - enum types
-- <u>delegate types</u>
+- `delegate types`
 - interface types
 
 ### The Stack and The Heap
@@ -332,5 +332,83 @@ The stack stores several types of data:
 - The program's current execution environment
 - Parameters passed to methods
 
+![image-20220510131248164](./png/stack.png)
 
+#### Heap
 
+The heap is **an area** of memory where chunks are allocated to store certain kinds of data objects.
+
+Unlike the stack, **data can be stored and removed from the heap in any order**.
+
+![image-20220510144305733](./png/heap.png)
+
+**Note:** Although your program can store items in the heap, it **cannot explicitly delete them**. `The CLR's garbage collector (GC) automatically cleans up orphaned heap objects when it determines that your code can no longer access them.`
+
+![image-20220510154552911](./png/GC-process.png)
+
+### Value Types and Reference Types
+
+Types are divided into two categories: value types and reference types. 
+
+- Value types require only **a single segment of memory**, which stores the actual data.
+- Reference types require **two segments of memory**.
+  - The first contains the actual data and is always located in the heap.
+  - The second is a reference that points to where the data is stored in the heap.
+
+**For value type, data is stored on the stack. **
+
+**For reference type, the actual data is stored in the heap, and the reference is stored on the stack.**
+
+![image-20220510163012900](./png/StoringData.png)
+
+#### Storing Members of a Reference Type Object
+
+Suppose that you have an instance of a reference type called *MyType* that has two members--a value type member and a reference type member. How is it stored?
+
+![image-20220510165750550](./png/StoringData1.png)
+
+Remember that **for a reference type, the data of an instance is always stored in the heap**. Since both members are part of the object’s data, they’re both stored in the heap, regardless of whether they are value or reference types. 
+
+- Even though member A is a value type, it’s part of the data of the instance of *MyType* and is therefore stored with the object’s data in the heap.
+- Member B is a reference type, and therefore its data portion will always be stored in the heap, as shown by the small box marked “Data.” What’s different is that its reference is also stored in the heap, inside the data portion of the enclosing *MyType* object.
+
+**Note: For any object of a reference type, all its data members are stored in the heap,** regardless of whether they are of value type or reference type.
+
+Value types and reference types in C#:
+
+![image-20220510171018479](./png/ValueTypesAndReferenceTypes.png)
+
+## Variables
+
+### Variable Declarations
+
+The variable declaration accomplishes two things:
+
+- It gives the variable a name and associates a type with it.
+- **It allows the compiler to allocate memory for it.**
+
+![image-20220510172144405](./png/ValueDeclaration.png)
+
+### Variable Initializers
+
+Local variables without initializers have an undefined value and cannot be used until they have been assigned a value.
+
+#### Automatic Initialization
+
+![image-20220510192330860](./png/AutomaticInitialization.png)
+
+### Static Typing and the Dynamic Keyword
+
+**static typing**: The type of the variable is determined at compile-time and cannot be changed at run time.
+
+C# provides the **dynamic** keyword to solve the problem that the type of a variable might not be resolved until run time.
+
+> At compile time, the compiler **doesn’t do type checking** on variables of type dynamic. Instead, it **packages** up any information about the variable’s operations and includes that information with the variable.
+>
+>  At run time, that information is **checked** to make sure it’s consistent with the actual type to which the variable was resolved. If it isn’t, the run time throws an exception.
+
+### Nullable Types
+
+**Nullable types** allow you to create a value type variable that can be marked as valid or invalid so that you can make sure a variable is valid before using it. 
+
+Regular value types are called *non-nullable types*.
