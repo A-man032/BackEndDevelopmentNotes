@@ -42,4 +42,6 @@ In order to save memory, Chrome puts a limit on how many processes it can spin u
 
 ## Saving more memory
 
-Chrome runs each of 
+Chrome runs each part of the browser program as a **service** allowing to easily split into different processes or aggregate into one.
+
+The benefit of service is that 
