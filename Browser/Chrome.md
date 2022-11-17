@@ -44,4 +44,19 @@ In order to save memory, Chrome puts a limit on how many processes it can spin u
 
 Chrome runs each part of the browser program as a **service** allowing to easily split into different processes or aggregate into one.
 
-The benefit of service is that 
+The benefit of this structure is that Chrome has different behavior in different performance hardward.
+
+- When Chrome is running on powerful hardware, it may **split each service into different processes** giving more stability.
+- If Chrome is running on a resource-constraint device, Chrome **consolidates service into one process** saving memory footprint.
+
+## Per-frame renderer processes - Site Isolation
+
+**Site Isolation**: Chrome runs a separate randerer process for each cross-site iframe.
+
+One randerer process per tab means that allows cross-site iframes to run in a single renderer process with sharing memory space between different sites.
+
+**Same Origin Policy**: core security model of the web. It makes sure one site cannot access data from other sites without consent. 
+
+Process isolation is the most effective way to separate sites.
+
+![image-20221117174436980](.\png\image-20221117174436980.png)
